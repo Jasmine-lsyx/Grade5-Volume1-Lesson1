@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>第1课 身边的算法｜互动学习支架</title>
+<style>
+  :root{
+    --bg:#f4f7fb;
+    --card:#ffffff;
+    --ink:#243247;
+    --muted:#6c7a90;
+    --line:#dbe3ee;
+    --accent:#2f6fdf;
+    --accent-soft:#eaf2ff;
+    --good:#247a52;
+    --good-soft:#e9f7ef;
+    --warn:#b06b12;
+    --warn-soft:#fff4df;
+    --danger:#b64747;
+    --danger-soft:#fff0f0;
+    --shadow:0 10px 30px rgba(40,58,85,.08);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",Arial,sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,#eef5ff 0,#f7f9fc 230px,#f4f7fb 100%);
+  }
+  button,input,textarea,select{font:inherit}
+  button{cursor:pointer}
+  .app{max-width:1440px;margin:0 auto;padding:18px 22px 40px}
+  .topbar{
+    background:rgba(255,255,255,.93);
+    border:1px solid rgba(214,225,240,.9);
+    border-radius:22px;
+    box-shadow:var(--shadow);
+    padding:16px 18px 14px;
+    position:sticky;
+    top:10px;
+    z-index:20;
+    backdrop-filter:blur(10px);
+  }
+  .topline{display:flex;align-items:flex-start;gap:16px;justify-content:space-between}
+  .title-wrap{min-width:0}
+  .eyebrow{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:.06em;margin-bottom:4px}
+  h1{font-size:26px;line-height:1.25;margin:0 0 6px}
+  .challenge{margin:0;color:var(--muted);font-size:15px}
+  .top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .namebox{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:14px;background:#f8fafc;border:1px solid var(--line);padding:7px 10px;border-radius:12px}
+  .namebox input{width:100px;border:none;outline:none;background:transparent;color:var(--ink)}
+  .btn{
+    border:none;
+    border-radius:12px;
+    padding:10px 15px;
+    font-weight:700;
+    transition:.18s ease;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn.primary{background:var(--accent);color:white;box-shadow:0 6px 14px rgba(47,111,223,.22)}
+  .btn.secondary{background:#eef3f9;color:var(--ink)}
+  .btn.ghost{background:white;border:1px solid var(--line);color:var(--ink)}
+  .btn.good{background:var(--good);color:white}
+  .btn.warn{background:var(--warn-soft);color:#8a5410;border:1px solid #f1d8aa}
+  .btn.danger{background:#fff1f1;color:var(--danger);border:1px solid #f0caca}
+  .btn:disabled{opacity:.42;cursor:not-allowed;transform:none;box-shadow:none}
+
+  .progress{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:14px}
+  .pstep{
+    border:1px solid var(--line);
+    background:#f9fbfd;
+    color:#78869b;
+    padding:8px 6px;
+    border-radius:12px;
+    text-align:center;
+    font-size:13px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .pstep.active{background:var(--accent-soft);border-color:#a9c5fa;color:var(--accent)}
+  .pstep.done{background:var(--good-soft);border-color:#b8e4cb;color:var(--good)}
+
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;margin-top:18px}
+  .main{min-width:0}
+  .side{min-width:0}
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:22px;
+    margin-bottom:16px;
+  }
+  .panel h2{font-size:22px;margin:0 0 8px}
+  .panel h3{font-size:17px;margin:0 0 8px}
+  .lead{font-size:16px;line-height:1.75;color:#46566d;margin:6px 0 16px}
+  .hint{font-size:14px;color:var(--muted);line-height:1.65}
+  .task-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:var(--accent-soft);color:var(--accent);font-weight:700;border-radius:999px;font-size:13px;margin-bottom:10px}
+
+  .side .panel{padding:18px;position:sticky;top:188px}
+  .archive-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+  .archive-title strong{font-size:16px}
+  .status-list{display:grid;gap:9px}
+  .status-item{display:flex;align-items:flex-start;gap:9px;font-size:14px;color:#64748b;padding:9px 10px;border-radius:12px;background:#f8fafc;border:1px solid #eef2f7}
+  .status-item.done{color:var(--good);background:var(--good-soft);border-color:#cfeada}
+  .dot{width:19px;height:19px;display:grid;place-items:center;border-radius:50%;background:#e4eaf2;color:#7a8799;font-size:12px;font-weight:900;flex:0 0 19px;margin-top:1px}
+  .status-item.done .dot{background:var(--good);color:white}
+  .archive-card{margin-top:13px;padding:12px;background:#f3f7fe;border:1px solid #dce8fa;border-radius:14px;font-size:14px;line-height:1.7}
+  .archive-card b{color:var(--accent)}
+
+  .planner{display:grid;grid-template-columns:minmax(240px,.85fr) minmax(380px,1.25fr);gap:18px;align-items:start}
+  .pool,.planbox{background:#f8fafc;border:1px dashed #c8d4e4;border-radius:16px;padding:15px;min-height:290px}
+  .pool-title,.plan-title{font-weight:800;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .step-pool{display:flex;flex-wrap:wrap;gap:9px;align-content:flex-start}
+  .step-card{
+    display:flex;align-items:center;gap:8px;
+    background:white;border:1px solid #cfd9e7;border-radius:12px;padding:10px 12px;
+    box-shadow:0 4px 10px rgba(40,58,85,.06);
+    font-weight:700;user-select:none;
+  }
+  .step-card[draggable="true"]{cursor:grab}
+  .step-card.dragging{opacity:.45}
+  .step-card .emoji{font-size:19px}
+  .slots{display:grid;gap:8px}
+  .slot{
+    min-height:54px;
+    border:1px dashed #c6d3e5;
+    border-radius:12px;
+    background:white;
+    display:grid;
+    grid-template-columns:40px minmax(0,1fr) auto;
+    align-items:center;
+    padding:6px 8px;
+    gap:8px;
+    transition:.15s ease;
+  }
+  .slot.over{border-color:var(--accent);background:var(--accent-soft)}
+  .slot-num{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:#edf2f8;color:#6d7b90;font-weight:800}
+  .slot.empty .slot-content{color:#9aa6b8;font-size:14px}
+  .slot-controls{display:flex;gap:4px}
+  .mini{
+    border:1px solid #d7e0ec;background:#f8fafc;color:#506078;border-radius:8px;padding:5px 8px;font-weight:700;font-size:12px
+  }
+  .mini:disabled{opacity:.25;cursor:not-allowed}
+  .planner-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+
+  .run-grid{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(360px,1.1fr);gap:18px}
+  .run-plan{border:1px solid var(--line);border-radius:16px;padding:14px;background:#fbfcfe}
+  .run-step{padding:10px 12px;border-radius:10px;border:1px solid transparent;display:flex;gap:10px;align-items:center;margin-bottom:6px;color:#65748a;background:#f5f7fa}
+  .run-step.current{background:var(--accent-soft);border-color:#b5ccf5;color:var(--accent);font-weight:800}
+  .run-step.done{background:var(--good-soft);border-color:#cde8d7;color:var(--good)}
+  .run-step.failed{background:var(--danger-soft);border-color:#efc8c8;color:var(--danger);font-weight:800}
+  .state-board{border:1px solid var(--line);border-radius:16px;padding:16px;background:white}
+  .state-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+  .state-item{padding:12px;border-radius:12px;background:#f7f9fc;border:1px solid #e6ebf2}
+  .state-item small{display:block;color:#7a8799;margin-bottom:5px}
+  .state-item strong{font-size:15px}
+  .run-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .feedback{margin-top:14px;padding:13px 14px;border-radius:13px;line-height:1.7;font-size:14px;border:1px solid var(--line);background:#f8fafc}
+  .feedback.good{background:var(--good-soft);border-color:#c4e5d0;color:#245e44}
+  .feedback.warn{background:var(--warn-soft);border-color:#f0d7aa;color:#7d551d}
+  .feedback.bad{background:var(--danger-soft);border-color:#efc8c8;color:#8b3e3e}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .algo-card{border:1px solid var(--line);border-radius:16px;padding:15px;background:#fbfcfe}
+  .algo-card h3{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .algo-list{display:grid;gap:7px}
+  .algo-line{padding:9px 10px;border-radius:10px;background:white;border:1px solid #e4e9f0;display:flex;align-items:center;gap:8px}
+  .algo-line.diff{background:#fff7e8;border-color:#f2d7a6}
+  .arrow{color:#9aa7b8}
+
+  .relation-board{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}
+  .relation-source,.bucket{min-height:210px;border:1px dashed #cbd6e5;border-radius:16px;padding:12px;background:#f9fbfd}
+  .bucket.must{background:#fffaf1}.bucket.flex{background:#f1f7ff}
+  .relation-title{font-weight:800;margin-bottom:9px;text-align:center}
+  .relation-card{background:white;border:1px solid #d5deea;border-radius:12px;padding:11px;margin-bottom:8px;font-weight:700;box-shadow:0 3px 8px rgba(30,45,65,.05);cursor:grab}
+  .relation-card .touch-choice{display:none;gap:6px;margin-top:8px}
+  .relation-card.wrong{border-color:#e3a2a2;background:#fff5f5}
+  .relation-card.right{border-color:#a9d6bc;background:#f1fbf5}
+  .concept{margin-top:14px;padding:16px;border-radius:16px;background:linear-gradient(135deg,#eef5ff,#f4fbf7);border:1px solid #cfe1f6;display:none}
+  .concept.show{display:block}
+  .concept-flow{display:grid;grid-template-columns:1fr 50px 1.4fr 50px 1fr;gap:8px;align-items:center;margin:12px 0}
+  .concept-box{padding:12px;border-radius:12px;background:white;border:1px solid #d9e2ed;text-align:center;font-weight:800}
+  .concept-arrow{text-align:center;color:#7a8ca4;font-size:22px}
+
+  .transfer-options{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+  .transfer-option{border:1px solid var(--line);background:white;border-radius:14px;padding:14px 12px;text-align:center;font-weight:800}
+  .transfer-option.active{border-color:#9bbcf6;background:var(--accent-soft);color:var(--accent)}
+  .form-grid{display:grid;gap:12px}
+  label.field{display:grid;gap:7px;font-weight:800}
+  label.field span{font-size:14px}
+  input[type="text"],textarea{
+    width:100%;border:1px solid #cfd9e7;border-radius:12px;padding:11px 12px;outline:none;background:white;color:var(--ink)
+  }
+  input[type="text"]:focus,textarea:focus{border-color:#8db2f1;box-shadow:0 0 0 3px rgba(47,111,223,.09)}
+  textarea{min-height:86px;resize:vertical;line-height:1.6}
+  .steps-editor{display:grid;gap:8px}
+  .step-edit-row{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center}
+  .step-edit-row .n{width:30px;height:30px;border-radius:8px;background:#edf2f8;display:grid;place-items:center;font-weight:800;color:#6f7d90}
+
+  .summary-card{border:1px solid #cfdced;border-radius:18px;background:white;padding:22px;box-shadow:0 12px 32px rgba(37,58,88,.09)}
+  .summary-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;border-bottom:1px solid #e3e9f1;padding-bottom:14px;margin-bottom:14px}
+  .summary-head h2{margin:0}
+  .version{padding:6px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:13px}
+  .summary-section{margin:14px 0}
+  .summary-section h3{font-size:15px;margin:0 0 7px;color:#4d5f77}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{padding:7px 10px;border-radius:999px;background:#f3f6fa;border:1px solid #e0e6ee;font-size:14px}
+  .reflection{background:#f7fbff;border:1px solid #dbe8f6;border-radius:13px;padding:13px;line-height:1.8;white-space:pre-wrap}
+  .summary-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+  .empty-note{padding:20px;text-align:center;color:#8a98aa;background:#f8fafc;border:1px dashed #cdd7e5;border-radius:14px}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(22,30,44,.42);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+  .modal-backdrop.show{display:flex}
+  .modal{max-width:680px;width:100%;background:white;border-radius:20px;border:1px solid var(--line);box-shadow:0 20px 60px rgba(20,30,50,.25);padding:20px}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .modal-head h2{margin:0;font-size:21px}
+  .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .teacher-box{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fafbfd}
+  .teacher-box h3{margin:0 0 9px;font-size:15px}
+  .jump-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .switch{position:relative;width:48px;height:26px;border-radius:999px;background:#cfd7e2;cursor:pointer;transition:.15s}
+  .switch::after{content:"";position:absolute;width:20px;height:20px;border-radius:50%;background:white;top:3px;left:3px;transition:.15s;box-shadow:0 2px 5px rgba(0,0,0,.18)}
+  .switch.on{background:var(--accent)}
+  .switch.on::after{left:25px}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);background:#203047;color:white;padding:10px 15px;border-radius:12px;opacity:0;pointer-events:none;transition:.2s;z-index:70;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:1040px){
+    .layout{grid-template-columns:1fr}.side .panel{position:static}.side{order:-1}
+    .planner,.run-grid{grid-template-columns:1fr}.relation-board{grid-template-columns:1fr}.transfer-options{grid-template-columns:repeat(2,1fr)}
+    .relation-card .touch-choice{display:flex}
+  }
+  @media(max-width:680px){
+    .app{padding:10px 10px 30px}.topbar{top:6px}.topline{display:grid}.top-actions{justify-content:flex-start}.progress{grid-template-columns:repeat(3,1fr)}
+    .panel{padding:16px}.compare{grid-template-columns:1fr}.concept-flow{grid-template-columns:1fr}.concept-arrow{transform:rotate(90deg)}.state-grid{grid-template-columns:1fr}.modal-grid{grid-template-columns:1fr}.transfer-options{grid-template-columns:1fr 1fr}
+    h1{font-size:22px}.panel h2{font-size:20px}
+  }
+
+  @media print{
+    body{background:white}
+    .topbar,.side,.no-print,.panel:not(.print-panel){display:none!important}
+    .app,.layout,.main{display:block!important;max-width:none;margin:0;padding:0}
+    .print-panel{border:none;box-shadow:none;margin:0;padding:0}
+    .summary-card{box-shadow:none;border:1px solid #aaa}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="topline">
+      <div class="title-wrap">
+        <div class="eyebrow">五年级上册 · 第一单元「算法与算法表示」</div>
+        <h1>第1课 身边的算法</h1>
+        <p class="challenge">主挑战：怎样安排步骤，才能成功做出一杯水果茶？</p>
+      </div>
+      <div class="top-actions">
+        <label class="namebox">姓名 <input id="studentName" placeholder="选填" maxlength="12" /></label>
+        <button class="btn ghost" id="teacherBtn">⚙ 教师模式</button>
+      </div>
+    </div>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <div class="layout">
+    <main class="main" id="main"></main>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="archive-title"><strong>我的学习档案</strong><span id="stageCounter" class="hint">1 / 6</span></div>
+        <div class="status-list" id="statusList"></div>
+        <div class="archive-card">
+          当前成果：<b>水果茶算法1.0</b><br/>
+          <span class="hint">先让自己的方法真正“跑起来”，再去发现算法的特点。</span>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="teacherModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>教师模式</h2>
+      <button class="btn ghost" id="closeTeacher">关闭</button>
+    </div>
+    <div class="modal-grid">
+      <div class="teacher-box">
+        <h3>快速跳转</h3>
+        <div class="jump-grid" id="jumpGrid"></div>
+        <p class="hint">用于课堂演示。若前序学习证据尚未生成，页面会使用当前方案或演示方案补足显示。</p>
+      </div>
+      <div class="teacher-box">
+        <h3>课堂控制</h3>
+        <div class="toggle-row">
+          <span>显示生活迁移</span>
+          <div class="switch on" id="migrationSwitch" role="switch" aria-checked="true"></div>
+        </div>
+        <div style="height:10px"></div>
+        <button class="btn secondary" id="showAltBtn" style="width:100%;margin-bottom:8px">展示另一种成功算法</button>
+        <button class="btn warn" id="resetTaskBtn" style="width:100%;margin-bottom:8px">重置本次任务</button>
+        <button class="btn danger" id="clearAllBtn" style="width:100%">清除本机学习记录</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const STEP_META = {
+    clean:{label:'清洗水果',emoji:'🫧'},
+    slice:{label:'切片',emoji:'🔪'},
+    put:{label:'放入杯中',emoji:'🥝'},
+    water:{label:'加水',emoji:'💧'},
+    soak:{label:'浸泡',emoji:'⏳'},
+    finish:{label:'完成',emoji:'🍹'}
+  };
+  const ALL_STEPS = ['clean','slice','put','water','soak','finish'];
+  const VALID_A = ['clean','slice','put','water','soak','finish'];
+  const VALID_B = ['clean','slice','water','put','soak','finish'];
+  const STAGE_NAMES = ['设计方案','执行验证','修改完善','比较算法','生活迁移','算法1.0'];
+  const ARCHIVE_ITEMS = [
+    '我设计了第一份方案',
+    '我让算法实际运行过',
+    '我修改并重新验证过',
+    '我发现了不同算法'
+  ];
+  const RELATIONS = {
+    r1:{text:'清洗水果 → 切片',answer:'must'},
+    r2:{text:'放入杯中 ↔ 加水',answer:'flex'},
+    r3:{text:'浸泡 → 完成',answer:'must'}
+  };
+  const STORAGE_KEY = 'algo_scaffold_grade5_lesson1_v1';
+
+  const defaultState = () => ({
+    name:'',
+    stage:1,
+    order:[null,null,null,null,null,null],
+    poolOrder:shuffle([...ALL_STEPS]),
+    firstPlan:null,
+    lastSubmittedPlan:null,
+    finalPlan:null,
+    runCount:0,
+    modificationCount:0,
+    hadFailure:false,
+    archive:[false,false,false,false],
+    relationPlacement:{r1:'source',r2:'source',r3:'source'},
+    relationSolved:false,
+    transfer:{task:'',problem:'',steps:['','',''],result:''},
+    reflection:'',
+    migrationVisible:true,
+    completed:false
+  });
+
+  let state = loadState();
+  let runner = null;
+  let draggedStep = null;
+  let draggedRelation = null;
+  let lastFailedKey = '';
+
+  const main = document.getElementById('main');
+  const progress = document.getElementById('progress');
+  const statusList = document.getElementById('statusList');
+  const stageCounter = document.getElementById('stageCounter');
+  const studentName = document.getElementById('studentName');
+  const toastEl = document.getElementById('toast');
+
+  studentName.value = state.name || '';
+  studentName.addEventListener('input', e => { state.name = e.target.value.trim(); saveState(); });
+
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  }
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      const fresh = defaultState();
+      return Object.assign(fresh, parsed, {
+        archive:Array.isArray(parsed.archive)?parsed.archive:fresh.archive,
+        relationPlacement:Object.assign(fresh.relationPlacement, parsed.relationPlacement||{}),
+        transfer:Object.assign(fresh.transfer, parsed.transfer||{})
+      });
+    }catch(err){ return defaultState(); }
+  }
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(err){}
+  }
+  function samePlan(a,b){ return Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((x,i)=>x===b[i]); }
+  function isValidPlan(plan){ return samePlan(plan,VALID_A)||samePlan(plan,VALID_B); }
+  function getDisplayPlan(){
+    if(state.finalPlan && state.finalPlan.length===6) return state.finalPlan;
+    if(state.order && state.order.length===6) return state.order;
+    return VALID_A;
+  }
+  function altPlanFor(plan){ return samePlan(plan,VALID_A) ? VALID_B : VALID_A; }
+  function labelPlan(plan){ return (plan||[]).map(k=>STEP_META[k].label); }
+  function toast(msg){
+    toastEl.textContent=msg;toastEl.classList.add('show');
+    setTimeout(()=>toastEl.classList.remove('show'),1600);
+  }
+
+  function setStage(n, opts={}){
+    state.stage=Math.max(1,Math.min(6,n));
+    if(!opts.keepScroll) window.scrollTo({top:0,behavior:'smooth'});
+    saveState();
+    renderAll();
+  }
+
+  function renderAll(){ renderProgress(); renderArchive(); renderStage(); syncTeacher(); }
+
+  function renderProgress(){
+    progress.innerHTML='';
+    STAGE_NAMES.forEach((name,i)=>{
+      const n=i+1;
+      const el=document.createElement('div');
+      el.className='pstep '+(n<state.stage?'done':n===state.stage?'active':'');
+      el.textContent=(n<state.stage?'✓ ':'')+name;
+      progress.appendChild(el);
+    });
+  }
+  function renderArchive(){
+    statusList.innerHTML='';
+    ARCHIVE_ITEMS.forEach((t,i)=>{
+      const d=document.createElement('div');
+      d.className='status-item '+(state.archive[i]?'done':'');
+      d.innerHTML=`<span class="dot">${state.archive[i]?'✓':i+1}</span><span>${t}</span>`;
+      statusList.appendChild(d);
+    });
+    stageCounter.textContent=`${state.stage} / 6`;
+  }
+
+  function renderStage(){
+    if(state.stage===1) renderStage1();
+    else if(state.stage===2) renderStage2();
+    else if(state.stage===3) renderStage3();
+    else if(state.stage===4) renderStage4();
+    else if(state.stage===5) renderStage5();
+    else renderStage6();
+  }
+
+  // ---------- Stage 1 ----------
+  function renderStage1(){
+    const used = new Set(state.order.filter(Boolean));
+    const poolSteps = (state.poolOrder||ALL_STEPS).filter(k=>!used.has(k));
+    main.innerHTML=`
+      <section class="panel">
+        <div class="task-badge">阶段1 · 我来设计</div>
+        <h2>一杯水果茶从哪里开始？</h2>
+        <p class="lead">桌面上已经准备好了水果、杯子和水。请根据你的生活经验，安排制作步骤。这里先不告诉你“标准答案”，等会儿让页面严格按你的方法做一次。</p>
+        <div class="planner">
+          <div class="pool">
+            <div class="pool-title"><span>待安排步骤</span><span class="hint">拖到右侧，或点击卡片</span></div>
+            <div class="step-pool" id="stepPool"></div>
+          </div>
+          <div class="planbox">
+            <div class="plan-title"><span>我的制作方案</span><span class="hint">可以拖动调整，也可用 ↑ ↓</span></div>
+            <div class="slots" id="slots"></div>
+          </div>
+        </div>
+        <div class="planner-actions">
+          <button class="btn secondary" id="shuffleBtn">重新打乱待安排步骤</button>
+          <button class="btn primary" id="runPlanBtn">▶ 按我的方法做一次</button>
+        </div>
+        <div class="feedback" style="margin-top:12px">先别急着问“对不对”。真正执行一次，看看这套方法能不能顺利完成任务。</div>
+      </section>`;
+
+    const pool=document.getElementById('stepPool');
+    poolSteps.forEach(k=>pool.appendChild(makeStepCard(k,'pool')));
+    const slots=document.getElementById('slots');
+    for(let i=0;i<6;i++) slots.appendChild(makeSlot(i,state.order[i]||null));
+
+    document.getElementById('runPlanBtn').disabled = state.order.filter(Boolean).length!==6;
+    document.getElementById('runPlanBtn').addEventListener('click', startRun);
+    document.getElementById('shuffleBtn').addEventListener('click',()=>{
+      if(state.firstPlan){ toast('第一次方案已经记录，当前方案不会被覆盖。'); return; }
+      state.poolOrder=shuffle([...(state.poolOrder||[])]); saveState(); renderStage1();
+    });
+    initStepDnD();
+  }
+
+  function makeStepCard(key,where){
+    const meta=STEP_META[key];
+    const el=document.createElement('div');
+    el.className='step-card'; el.draggable=true; el.dataset.step=key;
+    el.innerHTML=`<span class="emoji">${meta.emoji}</span><span>${meta.label}</span>`;
+    el.addEventListener('dragstart',()=>{draggedStep=key;el.classList.add('dragging')});
+    el.addEventListener('dragend',()=>{draggedStep=null;el.classList.remove('dragging')});
+    if(where==='pool'){
+      el.addEventListener('click',()=>{
+        const idx=state.order.findIndex(x=>!x);
+        if(idx>=0){ state.order[idx]=key; normalizeOrder(); saveState(); renderStage1(); }
+      });
+    }
+    return el;
+  }
+  function makeSlot(i,key){
+    const el=document.createElement('div');
+    el.className='slot '+(!key?'empty':''); el.dataset.index=i;
+    const content= key ? `${STEP_META[key].emoji} ${STEP_META[key].label}` : '把一个步骤放到这里';
+    el.innerHTML=`<div class="slot-num">${i+1}</div><div class="slot-content">${content}</div>
+      <div class="slot-controls">
+        <button class="mini" data-action="up" ${i===0||!key?'disabled':''}>↑</button>
+        <button class="mini" data-action="down" ${i===5||!key?'disabled':''}>↓</button>
+        <button class="mini" data-action="remove" ${!key?'disabled':''}>移出</button>
+      </div>`;
+    el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over')});
+    el.addEventListener('dragleave',()=>el.classList.remove('over'));
+    el.addEventListener('drop',e=>{
+      e.preventDefault();el.classList.remove('over');
+      if(!draggedStep) return;
+      const from=state.order.indexOf(draggedStep);
+      const target=Number(el.dataset.index);
+      const targetKey=state.order[target];
+      if(from>=0){ state.order[from]=targetKey||null; state.order[target]=draggedStep; }
+      else { state.order[target]=draggedStep; }
+      normalizeOrder(); saveState(); renderStage1();
+    });
+    el.querySelectorAll('.mini').forEach(btn=>btn.addEventListener('click',ev=>{
+      ev.stopPropagation(); const act=btn.dataset.action;
+      if(act==='up'&&i>0){ [state.order[i-1],state.order[i]]=[state.order[i],state.order[i-1]]; }
+      if(act==='down'&&i<5){ [state.order[i+1],state.order[i]]=[state.order[i],state.order[i+1]]; }
+      if(act==='remove'){ state.order[i]=null; }
+      normalizeOrder(); saveState(); renderStage1();
+    }));
+    return el;
+  }
+  function normalizeOrder(){
+    const seen=new Set();
+    state.order=state.order.map(x=>{
+      if(!x||seen.has(x)) return null; seen.add(x); return x;
+    });
+    while(state.order.length<6) state.order.push(null);
+    state.order=state.order.slice(0,6);
+    const placed=new Set(state.order.filter(Boolean));
+    const missing=ALL_STEPS.filter(k=>!placed.has(k));
+    const existing=(state.poolOrder||[]).filter(k=>missing.includes(k));
+    state.poolOrder=[...existing,...missing.filter(k=>!existing.includes(k))];
+  }
+  function initStepDnD(){
+    const pool=document.getElementById('stepPool');
+    if(!pool) return;
+    pool.addEventListener('dragover',e=>e.preventDefault());
+    pool.addEventListener('drop',e=>{
+      e.preventDefault(); if(!draggedStep) return;
+      const from=state.order.indexOf(draggedStep);
+      if(from>=0){ state.order[from]=null; normalizeOrder(); saveState(); renderStage1(); }
+    });
+  }
+  function startRun(){
+    if(state.order.filter(Boolean).length!==6){ toast('请先把6个步骤都安排好。'); return; }
+    const plan=[...state.order];
+    if(!state.firstPlan) state.firstPlan=[...plan];
+    if(state.lastSubmittedPlan && !samePlan(plan,state.lastSubmittedPlan)) state.modificationCount++;
+    state.lastSubmittedPlan=[...plan];
+    state.runCount++;
+    state.archive[0]=true;
+    runner={
+      plan:[...plan], index:0, done:[], failed:false,
+      sim:{cleaned:false,sliced:false,inCup:false,water:false,soaked:false,finished:false}
+    };
+    saveState(); setStage(2);
+  }
+
+  // ---------- Stage 2 ----------
+  function renderStage2(){
+    if(!runner){
+      const plan=state.lastSubmittedPlan||state.order||VALID_A;
+      runner={plan:[...plan],index:0,done:[],failed:false,sim:{cleaned:false,sliced:false,inCup:false,water:false,soaked:false,finished:false}};
+    }
+    main.innerHTML=`
+      <section class="panel">
+        <div class="task-badge">阶段2 · 按我的方法做</div>
+        <h2>让“小助手”严格执行你的步骤</h2>
+        <p class="lead">一次只执行一步。不要跳过状态变化，看看自己的方案在哪一步能够继续，在哪一步可能卡住。</p>
+        <div class="run-grid">
+          <div class="run-plan">
+            <h3>我的方案</h3>
+            <div id="runPlanList"></div>
+          </div>
+          <div class="state-board">
+            <h3>制作台状态</h3>
+            <div class="state-grid" id="stateGrid"></div>
+            <div class="run-controls">
+              <button class="btn primary" id="nextRunBtn">执行下一步</button>
+              <button class="btn secondary" id="backEditBtn">返回调整方案</button>
+            </div>
+            <div id="runFeedback" class="feedback">观察右侧状态，再决定是否继续执行。</div>
+          </div>
+        </div>
+      </section>`;
+    renderRunnerUI();
+    document.getElementById('nextRunBtn').addEventListener('click', executeNext);
+    document.getElementById('backEditBtn').addEventListener('click',()=>{ state.hadFailure = state.hadFailure || !!runner.failed; saveState(); setStage(1); });
+  }
+  function renderRunnerUI(){
+    const list=document.getElementById('runPlanList');
+    if(!list) return;
+    list.innerHTML='';
+    runner.plan.forEach((k,i)=>{
+      const d=document.createElement('div');
+      let cls='run-step';
+      if(runner.done.includes(i)) cls+=' done';
+      if(i===runner.index&&!runner.failed) cls+=' current';
+      if(runner.failed&&i===runner.index) cls+=' failed';
+      d.className=cls;
+      d.innerHTML=`<strong>${i+1}</strong><span>${STEP_META[k].emoji} ${STEP_META[k].label}</span>`;
+      list.appendChild(d);
+    });
+    const s=runner.sim;
+    const states=[
+      ['水果状态',s.cleaned?'已清洗':'未清洗'],
+      ['水果形态',s.sliced?'已切片':'完整'],
+      ['杯中内容',s.inCup?'已有水果':'空'],
+      ['水',s.water?'已加入':'未加入'],
+      ['浸泡状态',s.soaked?'已浸泡':'未开始'],
+      ['任务结果',s.finished?'水果茶完成':'尚未完成']
+    ];
+    document.getElementById('stateGrid').innerHTML=states.map(([a,b])=>`<div class="state-item"><small>${a}</small><strong>${b}</strong></div>`).join('');
+    const btn=document.getElementById('nextRunBtn');
+    if(btn){ btn.disabled=runner.failed||runner.sim.finished; btn.textContent=runner.sim.finished?'执行完成':'执行下一步'; }
+  }
+  function executeNext(){
+    if(runner.failed||runner.index>=runner.plan.length) return;
+    const k=runner.plan[runner.index];
+    const outcome=applyStep(k,runner.sim);
+    const fb=document.getElementById('runFeedback');
+    if(!outcome.ok){
+      runner.failed=true; state.hadFailure=true; lastFailedKey=k;
+      if(fb){ fb.className='feedback bad'; fb.innerHTML=`<b>现在还不能顺利完成这一步。</b><br>${outcome.hint}`; }
+      renderRunnerUI(); saveState(); return;
+    }
+    runner.done.push(runner.index);
+    runner.index++;
+    if(k==='finish'&&runner.sim.finished){
+      state.finalPlan=[...runner.plan];
+      state.archive[1]=true;
+      state.archive[2]=state.hadFailure ? true : state.archive[2];
+      saveState();
+      if(fb){ fb.className='feedback good'; fb.innerHTML='<b>这套方法成功完成了水果茶！</b><br>现在可以回看：你的方法是怎样一步一步被执行的。'; }
+      renderRunnerUI();
+      setTimeout(()=>setStage(3),700);
+      return;
+    }
+    if(fb){ fb.className='feedback good'; fb.textContent=outcome.msg; }
+    renderRunnerUI(); saveState();
+  }
+  function applyStep(k,s){
+    if(k==='clean'){
+      s.cleaned=true; return {ok:true,msg:'水果已经清洗好了，可以继续观察下一步。'};
+    }
+    if(k==='slice'){
+      if(!s.cleaned) return {ok:false,hint:'看看制作台中的“水果状态”。在把水果切开之前，还有没有应该先完成的准备？'};
+      s.sliced=true; return {ok:true,msg:'水果已经切片。接下来还要怎样处理，才能进入浸泡？'};
+    }
+    if(k==='put'){
+      if(!s.sliced) return {ok:false,hint:'现在水果还是完整的。想一想：直接把完整水果放进杯中，是否符合你准备制作的水果茶？'};
+      s.inCup=true; return {ok:true,msg:'水果已经放入杯中。继续观察：浸泡还需要哪些条件？'};
+    }
+    if(k==='water'){
+      if(!s.sliced) return {ok:false,hint:'水果处理工作还没有完成。再观察“水果形态”，先把与水果有关的准备步骤理清。'};
+      s.water=true; return {ok:true,msg:'水已经加入杯中。还不能急着说“完成”，看看浸泡条件是否已经满足。'};
+    }
+    if(k==='soak'){
+      if(!s.inCup&&!s.water) return {ok:false,hint:'现在杯中既没有水果，也没有水。浸泡需要哪些条件同时准备好？'};
+      if(!s.inCup) return {ok:false,hint:'水已经准备好了，但杯中还没有水果。浸泡对象在哪里？'};
+      if(!s.water) return {ok:false,hint:'水果已经在杯中，但还缺少浸泡所需要的另一项条件。'};
+      s.soaked=true; return {ok:true,msg:'已经进入浸泡状态。再想一想：什么时候才能宣布任务完成？'};
+    }
+    if(k==='finish'){
+      if(!s.soaked) return {ok:false,hint:'“完成”应该建立在前面制作过程已经完成的基础上。看看“浸泡状态”是不是还没有开始。'};
+      s.finished=true; return {ok:true,msg:'制作完成。'};
+    }
+    return {ok:false,hint:'这一步暂时无法执行。'};
+  }
+
+  // ---------- Stage 3 ----------
+  function renderStage3(){
+    const first=state.firstPlan||getDisplayPlan();
+    const final=state.finalPlan||getDisplayPlan();
+    const changed=!samePlan(first,final);
+    if(changed) state.archive[2]=true;
+    saveState();
+    main.innerHTML=`
+      <section class="panel">
+        <div class="task-badge">阶段3 · 修改完善</div>
+        <h2>${changed?'你的算法发生了变化':'你的第一份方案就成功执行了'}</h2>
+        <p class="lead">算法不是“猜中老师的顺序”，而是让解决问题的方法真正可以执行。看看自己的第一次方案和现在的方案。</p>
+        <div class="compare">
+          <div class="algo-card"><h3>第一次方案 <span class="hint">最初想法</span></h3>${planHtml(first)}</div>
+          <div class="algo-card"><h3>当前成功方案 <span class="hint">已验证</span></h3>${planHtml(final,first)}</div>
+        </div>
+        <div class="feedback ${changed?'good':'warn'}">
+          ${changed
+            ? `你已经经历了“发现问题 → 修改 → 再运行”。本次共调整并重新提交 <b>${state.modificationCount}</b> 次。`
+            : '这次没有发生修改，也没关系。下一步请看看：是不是只有这一种顺序才能成功？'}
+        </div>
+        <div class="planner-actions no-print">
+          <button class="btn secondary" id="editAgainBtn">我还想调整方案</button>
+          <button class="btn primary" id="toCompareBtn">继续：和另一种成功方案比一比</button>
+        </div>
+      </section>`;
+    document.getElementById('editAgainBtn').addEventListener('click',()=>setStage(1));
+    document.getElementById('toCompareBtn').addEventListener('click',()=>setStage(4));
+  }
+  function planHtml(plan,baseline){
+    const base=baseline||[];
+    return `<div class="algo-list">${plan.map((k,i)=>{
+      const diff=base[i]&&base[i]!==k?' diff':'';
+      return `<div class="algo-line${diff}"><strong>${i+1}</strong><span>${STEP_META[k].emoji} ${STEP_META[k].label}</span></div>`;
+    }).join('')}</div>`;
+  }
+
+  // ---------- Stage 4 ----------
+  function renderStage4(){
+    const mine=getDisplayPlan();
+    const alt=altPlanFor(mine);
+    main.innerHTML=`
+      <section class="panel">
+        <div class="task-badge">阶段4 · 比一比</div>
+        <h2>同一个问题，只有这一种方法吗？</h2>
+        <p class="lead">下面两种方法都可以成功完成水果茶。它们哪里相同？哪里不同？试着找出哪些先后关系不能乱，哪些步骤可以有不同安排。</p>
+        <div class="compare">
+          <div class="algo-card"><h3>我的成功方案 <span class="hint">已验证</span></h3>${comparePlanHtml(mine,alt)}</div>
+          <div class="algo-card"><h3>另一种成功方案 <span class="hint">顺序不完全相同</span></h3>${comparePlanHtml(alt,mine)}</div>
+        </div>
+        <h3>把“步骤关系卡”放到合适的位置</h3>
+        <div class="relation-board">
+          <div class="relation-source" id="relSource"><div class="relation-title">待判断</div></div>
+          <div class="bucket must" id="mustBucket"><div class="relation-title">🔒 有先后关系</div><div class="hint" style="text-align:center">顺序改变会影响执行</div></div>
+          <div class="bucket flex" id="flexBucket"><div class="relation-title">↔ 可以不同安排</div><div class="hint" style="text-align:center">两种安排都能成功</div></div>
+        </div>
+        <div id="relationFeedback" class="feedback">提示：不要靠猜。回看上面的两种成功方案和刚才的执行过程。</div>
+        <div class="concept ${state.relationSolved?'show':''}" id="conceptBox">
+          <h3>从刚才的操作中生成一个新认识</h3>
+          <div class="concept-flow">
+            <div class="concept-box">问题<br><span class="hint">制作一杯水果茶</span></div>
+            <div class="concept-arrow">→</div>
+            <div class="concept-box">方法和步骤<br><span class="hint">清洗、切片、放入杯中……</span></div>
+            <div class="concept-arrow">→</div>
+            <div class="concept-box">结果<br><span class="hint">一杯水果茶</span></div>
+          </div>
+          <p class="lead" style="margin-bottom:6px"><b>算法</b>：为了解决一个问题而采用的一系列方法和步骤。</p>
+          <p class="lead" style="margin-top:0">只要能解决问题，<b>同一个问题可以有不同的算法</b>。</p>
+          <button class="btn primary no-print" id="toTransferBtn">继续：找找生活中的算法</button>
+        </div>
+      </section>`;
+    renderRelations();
+    if(state.relationSolved){
+      document.getElementById('toTransferBtn').addEventListener('click',()=>{
+        if(state.migrationVisible) setStage(5); else setStage(6);
+      });
+    }
+  }
+  function comparePlanHtml(plan,other){
+    return `<div class="algo-list">${plan.map((k,i)=>`<div class="algo-line ${other[i]!==k?'diff':''}"><strong>${i+1}</strong><span>${STEP_META[k].emoji} ${STEP_META[k].label}</span></div>`).join('')}</div>`;
+  }
+  function renderRelations(){
+    ['source','must','flex'].forEach(zone=>{
+      const box=document.getElementById(zone==='source'?'relSource':zone==='must'?'mustBucket':'flexBucket');
+      if(!box) return;
+      Object.entries(RELATIONS).forEach(([id,meta])=>{
+        if(state.relationPlacement[id]!==zone) return;
+        box.appendChild(makeRelationCard(id,meta));
+      });
+      box.addEventListener('dragover',e=>e.preventDefault());
+      box.addEventListener('drop',e=>{e.preventDefault();if(!draggedRelation)return;state.relationPlacement[draggedRelation]=zone;saveState();evaluateRelations();renderStage4();});
+    });
+  }
+  function makeRelationCard(id,meta){
+    const el=document.createElement('div');
+    const zone=state.relationPlacement[id];
+    let resultCls='';
+    if(zone!=='source') resultCls = zone===meta.answer?' right':' wrong';
+    el.className='relation-card'+resultCls;el.draggable=true;el.dataset.id=id;
+    el.innerHTML=`<div>${meta.text}</div><div class="touch-choice">
+      <button class="mini" data-zone="must">放到“有先后”</button><button class="mini" data-zone="flex">放到“可以不同”</button><button class="mini" data-zone="source">移回</button>
+    </div>`;
+    el.addEventListener('dragstart',()=>draggedRelation=id);
+    el.addEventListener('dragend',()=>draggedRelation=null);
+    el.querySelectorAll('[data-zone]').forEach(b=>b.addEventListener('click',()=>{state.relationPlacement[id]=b.dataset.zone;saveState();evaluateRelations();renderStage4();}));
+    return el;
+  }
+  function evaluateRelations(){
+    const placed=Object.keys(RELATIONS).filter(id=>state.relationPlacement[id]!=='source');
+    const wrong=placed.filter(id=>state.relationPlacement[id]!==RELATIONS[id].answer);
+    state.relationSolved = placed.length===3 && wrong.length===0;
+    if(state.relationSolved){ state.archive[3]=true; saveState(); return; }
+    saveState();
+    if(wrong.length){
+      const id=wrong[0];
+      const fbHints={
+        r1:'再想一想：如果水果还没有清洗就先切开，会发生什么？回看刚才执行时的“水果状态”。',
+        r2:'看看上面的两种成功方案：这两步的先后正好互换了，但两种方法都成功。',
+        r3:'“完成”能不能出现在浸泡之前？回看执行器里的“浸泡状态”。'
+      };
+      setTimeout(()=>{const fb=document.getElementById('relationFeedback');if(fb){fb.className='feedback bad';fb.textContent=fbHints[id];}},0);
+    }
+  }
+
+  // ---------- Stage 5 ----------
+  function renderStage5(){
+    if(!state.migrationVisible){ setStage(6); return; }
+    const options=[['整理书包','🎒'],['煮面','🍜'],['洗衣','🧺'],['自己的任务','✏️']];
+    main.innerHTML=`
+      <section class="panel">
+        <div class="task-badge">阶段5 · 找一找</div>
+        <h2>算法只藏在水果茶里吗？</h2>
+        <p class="lead">选择一个你熟悉的生活任务，用“要解决的问题 → 主要步骤 → 最后结果”把它说出来。这里不要求把每句话写得特别精确，我们先看你能不能找到其中的方法和步骤。</p>
+        <div class="transfer-options" id="transferOptions">
+          ${options.map(([t,e])=>`<button class="transfer-option ${state.transfer.task===t?'active':''}" data-task="${t}">${e}<br>${t}</button>`).join('')}
+        </div>
+        <div class="form-grid">
+          <label class="field"><span>我要解决的问题</span><input type="text" id="transferProblem" value="${escapeAttr(state.transfer.problem)}" placeholder="例如：把明天上课需要的物品整理好" /></label>
+          <label class="field"><span>主要步骤（至少3步）</span><div class="steps-editor" id="stepsEditor"></div></label>
+          <div><button class="btn secondary" id="addStepBtn">＋ 增加一步</button></div>
+          <label class="field"><span>最后的结果</span><input type="text" id="transferResult" value="${escapeAttr(state.transfer.result)}" placeholder="例如：书包整理完成" /></label>
+        </div>
+        <div class="planner-actions">
+          <button class="btn primary" id="saveTransferBtn">保存这份生活算法</button>
+          <button class="btn secondary" id="skipTransferBtn">课堂时间不够，先进入总结</button>
+        </div>
+        <div id="transferFeedback" class="feedback">先确定“要解决的问题”，再想主要步骤，最后看看会得到什么结果。</div>
+      </section>`;
+    document.querySelectorAll('[data-task]').forEach(btn=>btn.addEventListener('click',()=>{state.transfer.task=btn.dataset.task;saveState();renderStage5();}));
+    renderStepEditor();
+    document.getElementById('addStepBtn').addEventListener('click',()=>{if(state.transfer.steps.length<6){state.transfer.steps.push('');saveState();renderStage5();}});
+    document.getElementById('transferProblem').addEventListener('input',e=>{state.transfer.problem=e.target.value;saveState();});
+    document.getElementById('transferResult').addEventListener('input',e=>{state.transfer.result=e.target.value;saveState();});
+    document.getElementById('saveTransferBtn').addEventListener('click',saveTransfer);
+    document.getElementById('skipTransferBtn').addEventListener('click',()=>setStage(6));
+  }
+  function renderStepEditor(){
+    const box=document.getElementById('stepsEditor');
+    box.innerHTML='';
+    state.transfer.steps.forEach((v,i)=>{
+      const row=document.createElement('div');row.className='step-edit-row';
+      row.innerHTML=`<div class="n">${i+1}</div><input type="text" value="${escapeAttr(v)}" placeholder="写一个主要步骤"/><button class="mini" ${state.transfer.steps.length<=3?'disabled':''}>删除</button>`;
+      row.querySelector('input').addEventListener('input',e=>{state.transfer.steps[i]=e.target.value;saveState();});
+      row.querySelector('button').addEventListener('click',()=>{if(state.transfer.steps.length>3){state.transfer.steps.splice(i,1);saveState();renderStage5();}});
+      box.appendChild(row);
+    });
+  }
+  function saveTransfer(){
+    const steps=state.transfer.steps.map(s=>s.trim()).filter(Boolean);
+    const fb=document.getElementById('transferFeedback');
+    if(!state.transfer.task){fb.className='feedback bad';fb.textContent='先选一个你熟悉的生活任务，或者选择“自己的任务”。';return;}
+    if(!state.transfer.problem.trim()){fb.className='feedback bad';fb.textContent='再想一想：你做这些步骤，是为了解决什么问题？先把“要解决的问题”写出来。';return;}
+    if(steps.length<3){fb.className='feedback bad';fb.textContent='现在只有很少的步骤。试着回忆完整过程，至少写出3个主要步骤。';return;}
+    if(!state.transfer.result.trim()){fb.className='feedback bad';fb.textContent='最后会得到什么结果？补上“最后结果”，你的算法结构才完整。';return;}
+    fb.className='feedback good';fb.textContent='保存成功。你已经把“算法视角”从水果茶迁移到另一个生活任务。';
+    saveState(); setTimeout(()=>setStage(6),500);
+  }
+
+  // ---------- Stage 6 ----------
+  function renderStage6(){
+    const ready = !!state.reflection.trim();
+    main.innerHTML=`
+      <section class="panel print-panel">
+        <div class="task-badge no-print">阶段6 · 形成算法1.0</div>
+        <h2 class="no-print">把今天的发现写成一句自己的话</h2>
+        <p class="lead no-print">你已经经历了“设计 → 执行 → 修改 → 比较”。现在用一句话说说：你觉得什么是算法？同一个问题的算法一定只有一种吗？</p>
+        <div class="no-print" style="margin-bottom:16px">
+          <textarea id="reflectionInput" placeholder="例如：我发现，算法是为了解决问题而安排的一系列方法和步骤；同一个问题可以有不同算法。">${escapeHtml(state.reflection)}</textarea>
+          <div class="planner-actions">
+            <button class="btn primary" id="buildCardBtn">生成《水果茶算法1.0》</button>
+          </div>
+        </div>
+        <div id="summaryArea">${ready?summaryHtml():`<div class="empty-note no-print">写下你的发现后，这里会生成本课的《水果茶算法1.0》学习卡。</div>`}</div>
+      </section>`;
+    const ri=document.getElementById('reflectionInput');
+    if(ri) ri.addEventListener('input',e=>{state.reflection=e.target.value;saveState();});
+    const build=document.getElementById('buildCardBtn');
+    if(build) build.addEventListener('click',()=>{
+      if(!state.reflection.trim()){toast('先写下一句自己的发现。');return;}
+      state.completed=true; saveState(); renderStage6(); renderProgress(); renderArchive();
+      setTimeout(()=>document.getElementById('summaryArea')?.scrollIntoView({behavior:'smooth',block:'start'}),50);
+    });
+    bindSummaryActions();
+  }
+  function summaryHtml(){
+    const first=state.firstPlan||VALID_A, final=state.finalPlan||getDisplayPlan();
+    const transferSteps=state.transfer.steps.map(s=>s.trim()).filter(Boolean);
+    return `<div class="summary-card">
+      <div class="summary-head">
+        <div><div class="eyebrow">第一单元 · 阶段成果</div><h2>《水果茶算法1.0》</h2><div class="hint">${state.name?`学习者：${escapeHtml(state.name)}`:'学习者：________'}</div></div>
+        <div class="version">版本 1.0</div>
+      </div>
+      <div class="summary-section"><h3>我要解决的问题</h3><div class="reflection">制作一杯水果茶</div></div>
+      <div class="summary-section"><h3>我的第一次方案</h3><div class="chips">${labelPlan(first).map((x,i)=>`<span class="chip">${i+1}. ${x}</span>`).join('')}</div></div>
+      <div class="summary-section"><h3>我最终验证通过的方案</h3><div class="chips">${labelPlan(final).map((x,i)=>`<span class="chip">${i+1}. ${x}</span>`).join('')}</div></div>
+      <div class="summary-section"><h3>我的验证记录</h3><div class="reflection">运行 ${state.runCount} 次；重新调整并提交 ${state.modificationCount} 次。${state.hadFailure?'我曾在执行中发现过不合理的先后关系，并重新验证。':'我的方案第一次就完成了执行，随后通过比较发现了另一种可行算法。'}</div></div>
+      <div class="summary-section"><h3>我发现的关键关系</h3><div class="chips"><span class="chip">清洗水果 → 切片</span><span class="chip">浸泡 → 完成</span><span class="chip">放入杯中 ↔ 加水（可不同安排）</span></div></div>
+      ${state.transfer.task&&state.transfer.problem&&transferSteps.length>=3?`<div class="summary-section"><h3>我找到的生活算法：${escapeHtml(state.transfer.task)}</h3><div class="reflection">问题：${escapeHtml(state.transfer.problem)}\n步骤：${transferSteps.map((s,i)=>`${i+1}.${escapeHtml(s)}`).join(' → ')}\n结果：${escapeHtml(state.transfer.result)}</div></div>`:''}
+      <div class="summary-section"><h3>我的新发现</h3><div class="reflection">${escapeHtml(state.reflection)}</div></div>
+      <div class="summary-actions no-print"><button class="btn primary" id="printBtn">打印 / 保存为PDF</button><button class="btn secondary" id="backToCompareBtn">回看“不同算法”</button></div>
+    </div>`;
+  }
+  function bindSummaryActions(){
+    document.getElementById('printBtn')?.addEventListener('click',()=>window.print());
+    document.getElementById('backToCompareBtn')?.addEventListener('click',()=>setStage(4));
+  }
+
+  function escapeHtml(s=''){ return String(s).replace(/[&<>'"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[c])); }
+  function escapeAttr(s=''){ return escapeHtml(s).replace(/\n/g,' '); }
+
+  // ---------- Teacher mode ----------
+  const teacherModal=document.getElementById('teacherModal');
+  document.getElementById('teacherBtn').addEventListener('click',()=>teacherModal.classList.add('show'));
+  document.getElementById('closeTeacher').addEventListener('click',()=>teacherModal.classList.remove('show'));
+  teacherModal.addEventListener('click',e=>{if(e.target===teacherModal) teacherModal.classList.remove('show')});
+  const jumpGrid=document.getElementById('jumpGrid');
+  STAGE_NAMES.forEach((name,i)=>{
+    const b=document.createElement('button');b.className='mini';b.textContent=`${i+1}. ${name}`;b.addEventListener('click',()=>{teacherModal.classList.remove('show');teacherJump(i+1)});jumpGrid.appendChild(b);
+  });
+  document.getElementById('migrationSwitch').addEventListener('click',()=>{state.migrationVisible=!state.migrationVisible;saveState();syncTeacher();toast(state.migrationVisible?'已显示生活迁移':'已隐藏生活迁移');});
+  document.getElementById('showAltBtn').addEventListener('click',()=>{teacherModal.classList.remove('show');teacherJump(4)});
+  document.getElementById('resetTaskBtn').addEventListener('click',()=>{
+    if(!confirm('重置当前任务？将保留姓名，但清除本课学习过程。')) return;
+    const name=state.name; state=defaultState(); state.name=name; saveState(); runner=null; teacherModal.classList.remove('show'); studentName.value=name; renderAll();
+  });
+  document.getElementById('clearAllBtn').addEventListener('click',()=>{
+    if(!confirm('清除本机全部学习记录？此操作不可撤销。')) return;
+    localStorage.removeItem(STORAGE_KEY); state=defaultState(); runner=null; teacherModal.classList.remove('show'); studentName.value=''; renderAll();
+  });
+  function syncTeacher(){
+    const sw=document.getElementById('migrationSwitch');
+    if(sw){sw.classList.toggle('on',state.migrationVisible);sw.setAttribute('aria-checked',String(state.migrationVisible));}
+  }
+  function teacherJump(n){
+    if(!state.firstPlan) state.firstPlan=[...VALID_A];
+    if(!state.finalPlan) state.finalPlan=[...VALID_A];
+    if(n>=4 && !state.relationSolved){
+      // 保持关系卡未完成，便于课堂现场演示。
+      state.relationPlacement={r1:'source',r2:'source',r3:'source'};
+    }
+    if(n===2){
+      state.order=[...VALID_A]; state.poolOrder=[]; state.lastSubmittedPlan=[...VALID_A];
+      runner={plan:[...VALID_A],index:0,done:[],failed:false,sim:{cleaned:false,sliced:false,inCup:false,water:false,soaked:false,finished:false}};
+    }
+    state.stage=n; saveState(); renderAll();
+  }
+
+  // 保存页面关闭前的姓名
+  window.addEventListener('beforeunload',()=>saveState());
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
